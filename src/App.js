@@ -32,6 +32,7 @@ function App() {
     const ccb = localStorage.getItem("claim-certificate-before");
 
     if (ref.current === null || ccb === "true") {
+      alert("You have already claimed your certificate")
       return
     }
 
@@ -66,7 +67,7 @@ function App() {
 
       <form onSubmit={submit} className='float'>
         <input onChange={handelChange} name="studentName" value={name.studentName} type="text" placeholder='Enter your full name' />
-        <button onClick={onButtonClick}>
+        <button onClick={onButtonClick} title="Claim your certificate">
             <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"

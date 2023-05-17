@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { toPng } from 'html-to-image'; //html-to-image library 
 import image from "./image.jpg"
 
@@ -6,9 +6,23 @@ import image from "./image.jpg"
 
 function App() {
 
+  // Add some style(box-shadow) to form onClick on input
+  let input = useRef(null)
+  useEffect(() => {
+    input.current.addEventListener("focus", () => {
+        document.querySelector("form").classList.add("active");
+    })
+
+    input.current.addEventListener("blur", () => {
+        document.querySelector("form").classList.remove("active");
+    })
+  }, [])
+  
+
     // Prevent refresh page after submit the form
     const submit = (e) => {
       e.preventDefault();
+      onButtonClick()
     };
   
     const [name, setNeme] = useState({
@@ -22,52 +36,60 @@ function App() {
       ...prevName,
       [name]: value,
     }));
+
   }
-
-   //  Download Certificate image
-  const ref = useRef(null)
-
+  //  Download Certificate image
+  const capture = useRef(null)
   const onButtonClick = useCallback(() => {
-
+    
+    // Check if empty input & user claim his certificate before
     const ccb = localStorage.getItem("claim-certificate-before");
+    if (input.current.value == null || input.current.value === "") {
+      alert("Please insert your full name.")
+      return
 
-    if (ref.current === null || ccb === "true") {
-      alert("You have already claimed your certificate")
+    } else if (capture.current === null || ccb === "true") {
+      alert("You have already claimed your certificate.")
       return
     }
 
-    ref.current.style.filter = "none"
-    document.querySelector(".float").style.display = "none"
+    // Hide <form> after submit
+    capture.current.style.filter = "none"
+    document.querySelector("form").style.display = "none"
     document.querySelector("p").style.display = "none"
 
+    // Add user to localStorage
     localStorage.setItem("claim-certificate-before", "true");
 
-    toPng(ref.current, { cacheBust: true, })
+    // html-to-image function
+    toPng(capture.current, { cacheBust: true, })
       .then((dataUrl) => {
         const link = document.createElement('a')
-        link.download = 'my-image-name.png'
+        link.download = 'certificate.png'
         link.href = dataUrl
         link.click()
       })
       .catch((err) => {
         console.log(err)
       })
-  }, [ref])
+  }, [capture])
+
+
 
 
 
   return (
     <main>
 
-      <div className="certificate-container" ref={ref}>
+      <div className="certificate-container" ref={capture}>
         <img src={image} alt="certificate" />
         <div className="name-text">{name.studentName}</div>
       </div>
 
 
-      <form onSubmit={submit} className='float'>
-        <input onChange={handelChange} name="studentName" value={name.studentName} type="text" placeholder='Enter your full name' />
-        <button onClick={onButtonClick} title="Claim your certificate">
+      <form onSubmit={submit}>
+        <input dir="auto" onChange={handelChange} ref={input} name="studentName" value={name.studentName} type="text" placeholder='Enter your full name' />
+        <button type="submit" title="Claim your certificate">
             <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -81,7 +103,8 @@ function App() {
             </svg>
         </button>
       </form>
-        <p>تأكد من كتابة الاسم كامل بشكل صحيح, لن تتمكن من المطالبة بالشهادة مرة أخرة</p>
+
+      <p dir="auto">تأكد من كتابة الاسم كامل بشكل صحيح, لن تتمكن من المطالبة بالشهادة مرة أخرى.</p>
 
     </main>
   );

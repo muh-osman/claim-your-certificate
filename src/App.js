@@ -59,7 +59,7 @@ function App() {
     document.querySelector("p").style.display = "none"
 
     // Add user to localStorage
-    localStorage.setItem("claim-certificate-before", "true");
+    // localStorage.setItem("claim-certificate-before", "true");
 
     // html-to-image function
     toPng(capture.current, { cacheBust: true, })
